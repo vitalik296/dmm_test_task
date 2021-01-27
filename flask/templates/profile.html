@@ -1,0 +1,50 @@
+{% extends "layout.html" %}
+
+{% block content %}
+
+<script>
+function add_pokemon() {
+  let selected = document.getElementById("pokemon_list").value;
+  let xhr = new XMLHttpRequest();
+  xhr.onreadystatechange = () =>{
+    if (xhr.readyState === 4){
+        var div = document.createElement('div')
+        var a = document.createElement('a');
+        text = document.createTextNode(selected);
+        a.appendChild(text)
+        a.href = "https://pokeapi.co/api/v2/pokemon/" + selected;
+        div.appendChild(a)
+        document.getElementById('user_pokemon_list').appendChild(div);
+    }
+  };
+  xhr.open('PUT', '/api/gamer');
+  xhr.setRequestHeader("Content-type", "application/json");
+  xhr.send(JSON.stringify({"login": "{{current_user.login}}", "pokemon": selected}));
+}
+</script>
+
+<h1>Gamer name: {{current_user.name}}</h1>
+  {% with messages = get_flashed_messages() %}
+  {% if messages %}
+      <div class="notification is-danger">
+          {{ messages[0] }}
+      </div>
+  {% endif %}
+  {% endwith %}
+  <div>
+    <select id="pokemon_list">
+      {% for pokemon in pokemon_list %}
+      <option>{{pokemon}}</option>
+      {% endfor %}
+    </select>
+    <button onclick="add_pokemon()">Add Pokemon</button>
+  </div>
+<h1>Pokemons List:</h1>
+  <div id="user_pokemon_list">
+    {% for pokemon in current_user.pokemon %}
+    <div>
+      <a href="https://pokeapi.co/api/v2/pokemon/{{pokemon}}">{{pokemon}}</a>
+    </div>
+    {% endfor %}
+  </div>
+{% endblock %}

@@ -1,0 +1,10 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<h1>Gamers List:</h1>
+{% for gamer in gamers%}
+<div>
+    <a href="/api/gamer/{{gamer.login}}">{{gamer.name}}</a>
+</div>
+{% endfor %}
+{% endblock %}
