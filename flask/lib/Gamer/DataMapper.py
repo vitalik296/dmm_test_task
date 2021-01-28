@@ -1,3 +1,7 @@
+"""
+Module for interaction with database
+"""
+
 from configparser import ConfigParser
 
 import psycopg2
@@ -65,14 +69,24 @@ class DataMapper(metaclass=Singleton):
         self.__is_exists()
 
     def _connect(self):
+        """
+        Connects to database
+        """
         return psycopg2.connect(database=self.database, user=self.user, host=self.host, password=self.password,
                                 port=self.port)
 
     def __is_exists(self):
+        """
+        Check that schema was loaded
+        """
         if not self.query('is_exists')[0][0]:
             self._load_from_schema()
 
     def _load_from_schema(self, path_name=CF.get("Database", "schema")):
+        """
+        Loads schema
+        :param path_name: path to schema file
+        """
         db = self._connect()
         cursor = db.cursor()
         cursor.execute(open(path_name, "r").read())
@@ -81,6 +95,11 @@ class DataMapper(metaclass=Singleton):
         db.close()
 
     def _dbh(self, query, params=None, last_row_id=False):
+        """
+        Execute database query.
+        :param last_row_id: if True return id of last inserted element
+        :return: query result
+        """
         if query in self._queries:
             db = self._connect()
             cursor = db.cursor()

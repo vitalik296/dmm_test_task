@@ -8,6 +8,9 @@ from lib.utils import Singleton
 
 
 class Pokemon(metaclass=Singleton):
+    """
+    Class used to load data from PokeAPI
+    """
     __pokemon_cache = {}
 
     @classmethod
@@ -45,31 +48,31 @@ class GamerObject(UserMixin):
                 "pokemon": self.pokemon,
                 "pokemon_data": self.pokemon_data}
 
+    @staticmethod
+    def _get_gamer_pokemons(gamer):
+        return Pokemon.get_list_pokemons(gamer['pokemon'])
+
+    @staticmethod
+    def from_tuple(gamer_data):
+        """Create Gamer object from a given tuple"""
+        print(gamer_data)
+        return GamerObject(gamer_data[0], gamer_data[1], gamer_data[2], gamer_data[3],
+                           gamer_data[4], Pokemon.get_list_pokemons(gamer_data[4]))
+
 
 class Gamer(metaclass=Singleton):
 
     def __init__(self):
         self.__data_mapper = DataMapper()
 
-    @staticmethod
-    def _get_gamer_pokemons(gamer):
-        return Pokemon.get_list_pokemons(gamer['pokemon'])
-
-    @staticmethod
-    def _gamer_to_dict(gamer):
-        gamer_dict = {"id": gamer[0],
-                      "name": gamer[1],
-                      "login": gamer[2],
-                      "password": gamer[3],
-                      "pokemon": gamer[4],
-                      "pokemon_data": Pokemon.get_list_pokemons(gamer[4])
-                      }
-        return gamer_dict
-
     def _get_gamer(self, query, params):
+        """
+        Gets gamer from database
+        :return: GamerObject or [] if gamer isn't found
+        """
         gamer_data = self.__data_mapper.query(query, params)
         if gamer_data:
-            gamer_data = GamerObject(**self._gamer_to_dict(gamer_data[0]))
+            gamer_data = GamerObject.from_tuple(gamer_data[0])
 
         return gamer_data
 
@@ -83,7 +86,7 @@ class Gamer(metaclass=Singleton):
         raw_gamers = self.__data_mapper.query("select_all_gamers")
         gamers_list = []
         for gamer in raw_gamers:
-            gamers_list.append(self._gamer_to_dict(gamer))
+            gamers_list.append(GamerObject.from_tuple(gamer).get_dict())
         return gamers_list
 
     def create_gamer(self, gamer_data, last_row_id=False):

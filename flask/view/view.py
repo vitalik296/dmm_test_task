@@ -1,3 +1,5 @@
+"""Routes for templates"""
+
 from flask import Blueprint, render_template
 from flask_login import login_required, current_user
 
@@ -8,6 +10,7 @@ view = Blueprint('view', __name__, url_prefix='/')
 POCKEMON_LIST = ["bulbasaur", "ivysaur", "venusaur", "charmander", "charmeleon", "charizard",
                  "squirtle", "wartortle", "blastoise", "caterpie", "metapod"]
 
+
 @view.route("/")
 def index():
     return render_template("index.html", gamers=Gamer().get_all_gamers())
@@ -17,3 +20,13 @@ def index():
 @login_required
 def profile():
     return render_template("profile.html", user=current_user, pokemon_list=POCKEMON_LIST)
+
+
+@view.route('/login')
+def login():
+    return render_template('login.html')
+
+
+@view.route('/signup')
+def signup():
+    return render_template("signup.html")
